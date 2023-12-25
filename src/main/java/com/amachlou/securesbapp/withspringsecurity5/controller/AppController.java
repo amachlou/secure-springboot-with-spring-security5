@@ -10,7 +10,7 @@ public class AppController {
 
     @GetMapping
     public String home(Principal principal){
-        return "Welcome Home ... "+principal;
+        return "Welcome Home ... "+principal.getName();
     }
 
 }
