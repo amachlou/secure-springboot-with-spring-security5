@@ -8,18 +8,26 @@ import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.Customizer;
+import org.springframework.jdbc.datasource.embedded.EmbeddedDatabase;
+import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
+import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configurers.oauth2.server.resource.OAuth2ResourceServerConfigurer;
-import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.jdbc.JdbcDaoImpl;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+import org.springframework.security.provisioning.JdbcUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
+
+import javax.sql.DataSource;
+
+import static org.springframework.security.config.Customizer.withDefaults;
 
 @Configuration
 @EnableWebSecurity
@@ -34,26 +42,56 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
-                .csrf(csrf -> csrf.disable())
-                .authorizeHttpRequests(auth -> auth.anyRequest().authenticated())
-                .oauth2ResourceServer(OAuth2ResourceServerConfigurer::jwt)
-                .sessionManagement(
-                        session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .httpBasic(Customizer.withDefaults())
+                .csrf(csrf -> csrf.ignoringAntMatchers("/h2-console/**"))
+                .authorizeHttpRequests(auth -> auth
+                        .antMatchers("/h2-console/**").permitAll()
+                        .anyRequest().authenticated())
+//                .oauth2ResourceServer(OAuth2ResourceServerConfigurer::jwt)
+                .headers(headers -> headers.frameOptions().sameOrigin())
+//                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .formLogin(withDefaults())
+//                .httpBasic(withDefaults())
                 .build();
     }
 
     @Bean
-    public InMemoryUserDetailsManager users(){
-        return new InMemoryUserDetailsManager(
-                User.withUsername("user")
-                    .password("{noop}pass")
-                    .authorities("read")
-                    .build()
-        );
+    EmbeddedDatabase embeddedDatabase(){
+        return new EmbeddedDatabaseBuilder()
+                .setType(EmbeddedDatabaseType.H2)
+                .setName("security-test")
+                .addScript(JdbcDaoImpl.DEFAULT_USER_SCHEMA_DDL_LOCATION)
+                .build();
     }
 
     @Bean
+    PasswordEncoder encoder(){
+        return new BCryptPasswordEncoder();
+    }
+
+//    @Bean
+//    public InMemoryUserDetailsManager users(){
+//        return new InMemoryUserDetailsManager(
+//                User.withUsername("user")
+//                    .password("{noop}pass")
+//                    .roles("ADMIN")
+//                    .authorities("read")
+//                    .build()
+//        );
+//    }
+
+    @Bean
+    public JdbcUserDetailsManager jdbcUserDetailsManager(DataSource dataSource, PasswordEncoder encoder) {
+        UserDetails admin = User.builder()
+                .username("admin").password(encoder.encode("pass")).roles("ADMIN")
+                .build();
+        UserDetails user = User.builder()
+                .username("user").password(encoder.encode("pass")).roles("USER")
+                .build();
+        JdbcUserDetailsManager jdbcUserDetailsManager = new JdbcUserDetailsManager(dataSource);
+        jdbcUserDetailsManager.createUser(admin);
+        jdbcUserDetailsManager.createUser(user);
+        return jdbcUserDetailsManager;
+    }    @Bean
     JwtDecoder jwtDecoder() {
         return NimbusJwtDecoder.withPublicKey(rsaKeyProperties.publicKey()).build();
     }
