@@ -1,6 +1,6 @@
 package com.amachlou.securesbapp.withspringsecurity5.controller;
 
-import com.amachlou.securesbapp.withspringsecurity5.TokenService;
+import com.amachlou.securesbapp.withspringsecurity5.services.TokenService;
 import com.amachlou.securesbapp.withspringsecurity5.config.SecurityConfig;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

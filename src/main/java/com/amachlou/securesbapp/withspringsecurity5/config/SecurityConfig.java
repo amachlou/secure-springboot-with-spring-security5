@@ -11,6 +11,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabase;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.userdetails.User;
@@ -31,6 +32,7 @@ import static org.springframework.security.config.Customizer.withDefaults;
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 public class SecurityConfig {
 
     private final RsaKeyProperties rsaKeyProperties;
@@ -68,6 +70,7 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
+//    Using simplest way to create user in memory
 //    @Bean
 //    public InMemoryUserDetailsManager users(){
 //        return new InMemoryUserDetailsManager(

@@ -1,6 +1,6 @@
 package com.amachlou.securesbapp.withspringsecurity5.controller;
 
-import com.amachlou.securesbapp.withspringsecurity5.TokenService;
+import com.amachlou.securesbapp.withspringsecurity5.services.TokenService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;

@@ -1,4 +1,4 @@
-package com.amachlou.securesbapp.withspringsecurity5;
+package com.amachlou.securesbapp.withspringsecurity5.services;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
