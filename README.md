@@ -6,13 +6,13 @@
     <artifactId>spring-security-oauth2-resource-server</artifactId>
   </dependency>
 
-## Prerequisites
+# Prerequisites
 Make sure you have the following installed:
 - Java Development Kit (JDK) 17 or higher
 - Maven for dependency management
 
 
-## Configuration
+# Configuration
 You'll need to configure the necessary properties in `application.properties` for the app to function properly. 
 Ensure you provide the required credentials,
 # run the following commands to generate a keypaire for Token signture(Make sure you have OpenSSL installed or just use Git cmd tool)
@@ -25,5 +25,5 @@ Ensure you provide the required credentials,
   # create private key in PKCS#8 format
   openssl pkcs8 -topk8 -inform PEM -outform PEM -nocrypt -in keypair.pem -out private.pem
 
-## Acknowledgments
+# Acknowledgments
 Mention any resources, libraries, or contributors you'd like to acknowledge in your project.
